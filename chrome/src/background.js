@@ -82,7 +82,7 @@ function showNotification(title, message) {
         iconUrl: "assets/image/icon_128.png",
         title: title,
         message: message,
-        isClickable: false
+        isClickable: true
     })
 }
 
