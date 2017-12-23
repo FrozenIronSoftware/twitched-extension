@@ -1,0 +1,54 @@
+{
+  "description": {
+    "message": "Cast a Twitch stream to the Twitched Roku app.",
+    "description": "Extension description"
+  },
+  "title_cast_success": {
+    "message": "Cast Successful",
+    "description": "Cast notification success title"
+  },
+  "title_cast_fail": {
+    "message": "Cast Failed",
+    "description": "Cast notification failure title"
+  },
+  "message_cast_success": {
+    "message": "Casted the $1 stream to the Twitched app.",
+    "description": "Cast notification success message"
+  },
+  "message_cast_fail": {
+    "message": "Failed to cast the $1 stream to the Twitched app.",
+    "description": "Cast notification failure message"
+  },
+  "message_find_stream_fail": {
+    "message": "Failed to find a live stream on the page.",
+    "description": "No live stream was found. Should happen on a VOD or page that does not have a stream."
+  },
+  "message_ip_not_set": {
+    "message": "A Roku IP is not set.",
+    "description": "Message shown if a deep link action is tried without an IP set."
+  },
+  "message_failed_set_ip": {
+    "message": "Failed to set Roku IP/hostname. Make sure the Roku is on and the IP/hostname is correct.",
+    "description": "Unknown failure"
+  },
+  "message_setting_ip": {
+    "message": "Verifying",
+    "description": "Message shown when IP is saving"
+  },
+  "message_set_ip": {
+    "message": "Saved",
+    "description": "IP set"
+  },
+  "message_roku_conntect_fail": {
+    "message": "Failed to connect to the Roku.",
+    "description": "Roku connection failed"
+  },
+  "title_cast_in_progress": {
+    "message": "Casting",
+    "description": "Casting notification title"
+  },
+  "message_cast_in_progress": {
+    "message": "Attempting to cast to the Twitched app.",
+    "description": "Notification message shown when a stream is attempting to be cast"
+  }
+}

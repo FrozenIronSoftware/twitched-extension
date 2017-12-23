@@ -1,0 +1,41 @@
+#search-panel {
+    width: 300px;
+    margin: 0 auto;
+}
+
+.text-centered {
+    text-align: center;
+}
+
+#search-spinner {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+    background: url("/assets/image/blocks.gif");
+    background-size: cover;
+}
+
+#roku-list {
+    width: 100%;
+    height: auto;
+}
+
+.roku {
+    width: 95%;
+    height: auto;
+    font-size: 12px;
+    line-height: 30px;
+    text-align: center;
+    font-weight: bold;
+    font-family: sans-serif;
+    border: rgb(100, 65, 164) 1px solid;
+    cursor: hand;
+}
+
+.roku:hover {
+    background: rgb(175, 138, 200);
+}
+
+.hidden {
+    display: none;
+}
