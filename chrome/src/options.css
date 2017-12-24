@@ -29,7 +29,7 @@
     font-weight: bold;
     font-family: sans-serif;
     border: rgb(100, 65, 164) 1px solid;
-    cursor: hand;
+    cursor: pointer;
 }
 
 .roku:hover {

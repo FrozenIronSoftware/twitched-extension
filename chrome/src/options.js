@@ -88,7 +88,7 @@ function addRokuToSearchList(ip, responseText) {
         if (vendor.toUpperCase() === "ROKU") {
             var deviceName = info.getElementsByTagName("user-device-name")[0].innerText;
             var roku = document.createElement("div");
-            roku.innerHTML = deviceName + " - " + ip;
+            roku.innerText = deviceName + " - " + ip;
             roku.setAttribute("class", "roku");
             roku.setAttribute("data-ip", ip);
             roku.setAttribute("data-name", deviceName);
@@ -111,7 +111,7 @@ function onIpSubmit(event) {
     var ipField = document.getElementById("ip-field");
     // Check for empty ip
     if (ipField === null || typeof(ipField) === "undefined") {
-        setMessage(chrome.i18n.setMessage("message_failed_set_ip"));
+        setMessage(chrome.i18n.getMessage("message_failed_set_ip"));
         return;
     }
     // Make a device info request to make sure this is a roku

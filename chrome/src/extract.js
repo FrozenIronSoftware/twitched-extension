@@ -5,6 +5,16 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     // Check if the request is to extract
     if (request.command !== "extract")
         return;
+    // Check if declarative content API is not enabled and check for the video player class element
+    if ((chrome.declarativeContent === null || typeof(chrome.declarativeContent) === "undefined")) {
+        var videoPlayersElements = document.getElementsByClassName("video-player");
+        // Failed to find item in page
+        if (videoPlayersElements.length === 0) {
+            return sendResponse({
+                error: "message_find_stream_fail"
+            });
+        }
+    }
     // Get login name
     var login;
     var videoPlayers = document.getElementsByClassName("video-player__container");

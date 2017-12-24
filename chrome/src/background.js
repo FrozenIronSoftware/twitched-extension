@@ -25,6 +25,16 @@ chrome.runtime.onInstalled.addListener(function() {
 });
 
 /**
+ * Fallback for Firefox (Firefix?) since it does not support declarativeContent
+ * This does not handle the .video-player class check on the page, so it should be checked in the content script
+ */
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+    if ((chrome.declarativeContent === null || typeof(chrome.declarativeContent) === "undefined") &&
+        changeInfo.status === "complete" && tab.url.indexOf("twitch.tv") !== -1)
+        chrome.pageAction.show(tabId);
+});
+
+/**
  * Send a stream deep link to the Roku
  * @param login
  * @param callback param - error associative array containing title and message if there is an error or null on success
@@ -72,18 +82,35 @@ function sendDeepLink(login, callback) {
 }
 
 /**
- * Show a chrome notification
+ * Show a notification
  * @param title title
  * @param message message
+ * @param isClickable is clickable
+ * @param callback callback(notificationId)
  */
-function showNotification(title, message) {
+function showNotificationWithCallback(title, message, isClickable, callback) {
     chrome.notifications.create("org.twitched.notification.main", {
         type: "basic",
         iconUrl: "assets/image/icon_128.png",
         title: title,
         message: message,
-        isClickable: true
-    })
+        isClickable: isClickable
+    }, callback)
+}
+
+/**
+ * Show a chrome notification
+ * @param title title
+ * @param message message
+ */
+function showNotification(title, message) {
+    showNotificationWithCallback(title, message, false, function () {
+        if (chrome.runtime.lastError) {
+            console.log(chrome.runtime.lastError);
+            // Opera does not support non-clickable message
+            showNotificationWithCallback(title, message, true, null);
+        }
+    });
 }
 
 /**
