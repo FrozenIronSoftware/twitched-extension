@@ -1,7 +1,7 @@
 {
   "name": "Twitched",
   "description": "__MSG_description__",
-  "version": "1.0",
+  "version": "1.0.1",
   "manifest_version": 2,
   "author": "Rolando Islas",
   "homepage_url": "https://www.twitched.org",

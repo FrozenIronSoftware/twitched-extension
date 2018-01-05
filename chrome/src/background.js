@@ -1,4 +1,4 @@
-var appId = "206723_e381"; // TODO update the unpublished id to the published one if the app passes verification
+var appId = "206723";
 
 /**
  * Page action show listener
