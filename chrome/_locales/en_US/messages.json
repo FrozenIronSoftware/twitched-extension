@@ -12,16 +12,16 @@
     "description": "Cast notification failure title"
   },
   "message_cast_success": {
-    "message": "Casted the $1 stream to the Twitched app.",
+    "message": "Casted to the Twitched app.",
     "description": "Cast notification success message"
   },
   "message_cast_fail": {
-    "message": "Failed to cast the $1 stream to the Twitched app.",
+    "message": "Failed to cast to the Twitched app.",
     "description": "Cast notification failure message"
   },
   "message_find_stream_fail": {
-    "message": "Failed to find a live stream on the page.",
-    "description": "No live stream was found. Should happen on a VOD or page that does not have a stream."
+    "message": "Failed to find a live stream or video on the page.",
+    "description": "No live stream or video player was found."
   },
   "message_ip_not_set": {
     "message": "A Roku IP is not set.",
@@ -39,7 +39,7 @@
     "message": "Saved",
     "description": "IP set"
   },
-  "message_roku_conntect_fail": {
+  "message_roku_connect_fail": {
     "message": "Failed to connect to the Roku.",
     "description": "Roku connection failed"
   },

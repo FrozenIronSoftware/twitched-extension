@@ -17,13 +17,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
     // Get login name
     var login;
+    var videoId;
     var videoPlayers = document.getElementsByClassName("video-player__container");
     if (videoPlayers.length > 0) {
         var videoPlayer = videoPlayers[0];
         login = videoPlayer.getAttribute("data-channel");
+        videoId = videoPlayer.getAttribute("data-video");
+        if (videoId !== null && typeof(videoId) !== "undefined")
+            videoId = videoId.replace("v", "");
     }
-    // Verify
-    if (login === null || typeof(login) === "undefined") {
+    // Extract login/video id from URL
+    if ((login === null || typeof(login) === "undefined") && (videoId === null || typeof(videoId) === "undefined")) {
         console.log("Failed to get login from video player attributes.");
         console.log(videoPlayers);
         var path = document.location.pathname;
@@ -33,7 +37,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             path = path.substring(0, path.indexOf("#"));
         var pathSplit = path.split("/");
         console.log(pathSplit);
-        if (pathSplit.length !== 2) {
+        if ((pathSplit.length === 3 && pathSplit[1] !== "videos") || pathSplit.length < 2 || pathSplit.length > 3 ||
+            (pathSplit.length === 2 && (pathSplit[1] === "directory" || pathSplit[1] === ""))) {
             console.log("Failed to get login from path.");
             console.log(document.location.pathname);
             console.log(pathSplit);
@@ -41,7 +46,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 error: "message_find_stream_fail"
             });
         }
-        login = pathSplit[1];
+        if (pathSplit.length === 2)
+            login = pathSplit[1];
+        if (pathSplit.length === 3)
+            videoId = pathSplit[2];
     }
     // Get the display name
     var displayName;
@@ -50,6 +58,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         streamer: {
             login: login,
             displayName: displayName
+        },
+        video: {
+            id: videoId
         }
     });
 });

@@ -36,10 +36,12 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 /**
  * Send a stream deep link to the Roku
- * @param login
+ * Provide only one of login or videoId
+ * @param login streamer login to use for deep link
+ * @param videoId video id to deep link
  * @param callback param - error associative array containing title and message if there is an error or null on success
  */
-function sendDeepLink(login, callback) {
+function sendDeepLink(login, videoId, callback) {
     chrome.storage.local.get("rokuIp", function (values) {
         if (values.rokuIp === null || typeof(values.rokuIp) === "undefined") {
             chrome.runtime.openOptionsPage();
@@ -62,10 +64,28 @@ function sendDeepLink(login, callback) {
                     callback()
             };
             try {
-                var url = "http://{0}:8060/launch/{1}?contentId=twitch_stream&mediaType=live&twitch_user_name={2}";
+                var url = "http://{0}:8060/launch/{1}?contentId={2}&mediaType={3}";
+                var contentId;
+                var mediaType;
+                if (login !== null && typeof(login) !== "undefined") {
+                    contentId = "twitch_stream_{0}".replace("{0}", login);
+                    mediaType = "live";
+                }
+                else if (videoId !== null && typeof(videoId) !== "undefined") {
+                    contentId = "twitch_video_{0}".replace("{0}", videoId);
+                    mediaType = "special";
+                }
+                else {
+                    // noinspection ExceptionCaughtLocallyJS
+                    throw "Missing login/videoId";
+                }
                 request.open(
                     "POST",
-                    url.replace("{0}", values.rokuIp).replace("{1}", appId).replace("{2}", login),
+                    url
+                        .replace("{0}", values.rokuIp)
+                        .replace("{1}", appId)
+                        .replace("{2}", contentId)
+                        .replace("{3}", mediaType),
                     true
                 );
                 request.send("");
@@ -134,17 +154,14 @@ chrome.pageAction.onClicked.addListener(function() {
             var title = chrome.i18n.getMessage(success ? "title_cast_success" : "title_cast_fail");
             var message;
             if (success)
-                message = chrome.i18n.getMessage("message_cast_success",
-                    response.streamer.displayName !== null && typeof(response.streamer.displayName) !== "undefined" ?
-                        response.streamer.displayName :
-                        response.streamer.login);
+                message = chrome.i18n.getMessage("message_cast_success");
             else
                 message = chrome.i18n.getMessage(response.error);
             // Send deep link
             if (success) {
                 showNotification(chrome.i18n.getMessage("title_cast_in_progress"),
                     chrome.i18n.getMessage("message_cast_in_progress"));
-                sendDeepLink(response.streamer.login, function (status) {
+                sendDeepLink(response.streamer.login, response.video.id, function (status) {
                     if (status !== null && typeof(status) !== "undefined") {
                         title = status.title;
                         message = status.message;
