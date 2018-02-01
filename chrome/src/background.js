@@ -39,9 +39,10 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
  * Provide only one of login or videoId
  * @param login streamer login to use for deep link
  * @param videoId video id to deep link
+ * @param time video start time - only used for vods
  * @param callback param - error associative array containing title and message if there is an error or null on success
  */
-function sendDeepLink(login, videoId, callback) {
+function sendDeepLink(login, videoId, time, callback) {
     chrome.storage.local.get("rokuIp", function (values) {
         if (values.rokuIp === null || typeof(values.rokuIp) === "undefined") {
             chrome.runtime.openOptionsPage();
@@ -64,7 +65,7 @@ function sendDeepLink(login, videoId, callback) {
                     callback()
             };
             try {
-                var url = "http://{0}:8060/launch/{1}?contentId={2}&mediaType={3}";
+                var url = "http://{0}:8060/launch/{1}?contentId={2}&mediaType={3}&time={4}";
                 var contentId;
                 var mediaType;
                 if (login !== null && typeof(login) !== "undefined") {
@@ -85,7 +86,8 @@ function sendDeepLink(login, videoId, callback) {
                         .replace("{0}", values.rokuIp)
                         .replace("{1}", appId)
                         .replace("{2}", contentId)
-                        .replace("{3}", mediaType),
+                        .replace("{3}", mediaType)
+                        .replace("{4}", (time !== null && typeof(time) !== "undefined") ? String(time) : "0"),
                     true
                 );
                 request.send("");
@@ -137,40 +139,41 @@ function showNotification(title, message) {
  * Handles the onclick of the extension icon when it is active
  */
 chrome.pageAction.onClicked.addListener(function() {
+    showNotification(chrome.i18n.getMessage("title_cast_in_progress"),
+        chrome.i18n.getMessage("message_cast_in_progress"));
     // Inject extractor JavaScript
     chrome.tabs.executeScript(null, {
         file: "src/extract.js"
-    });
-    // Send a message to the extractor
-    chrome.tabs.query({
-        active: true,
-        currentWindow: true
-    }, function(tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-            command: "extract"
-        }, function(response) {
-            var success = (response !== null && typeof(response) !== "undefined") &&
-                (response.error === null || typeof(response.error) === "undefined");
-            var title = chrome.i18n.getMessage(success ? "title_cast_success" : "title_cast_fail");
-            var message;
-            if (success)
-                message = chrome.i18n.getMessage("message_cast_success");
-            else
-                message = chrome.i18n.getMessage(response.error);
-            // Send deep link
-            if (success) {
-                showNotification(chrome.i18n.getMessage("title_cast_in_progress"),
-                    chrome.i18n.getMessage("message_cast_in_progress"));
-                sendDeepLink(response.streamer.login, response.video.id, function (status) {
-                    if (status !== null && typeof(status) !== "undefined") {
-                        title = status.title;
-                        message = status.message;
-                    }
-                    showNotification(title, message);
-                });
-            }
-            else
-                showNotification(title, message)
-        })
+    }, function () {
+        // Send a message to the extractor
+        chrome.tabs.query({
+            active: true,
+            currentWindow: true
+        }, function(tabs) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+                command: "extract"
+            }, function(response) {
+                var success = (response !== null && typeof(response) !== "undefined") &&
+                    (response.error === null || typeof(response.error) === "undefined");
+                var title = chrome.i18n.getMessage(success ? "title_cast_success" : "title_cast_fail");
+                var message;
+                if (success)
+                    message = chrome.i18n.getMessage("message_cast_success");
+                else
+                    message = chrome.i18n.getMessage(response.error);
+                // Send deep link
+                if (success) {
+                    sendDeepLink(response.streamer.login, response.video.id, response.video.time, function (status) {
+                        if (status !== null && typeof(status) !== "undefined") {
+                            title = status.title;
+                            message = status.message;
+                        }
+                        showNotification(title, message);
+                    });
+                }
+                else
+                    showNotification(title, message)
+            })
+        });
     });
 });

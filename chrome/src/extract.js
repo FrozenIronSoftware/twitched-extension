@@ -53,6 +53,20 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
     // Get the display name
     var displayName;
+    // Wait for the video time
+    var pollTime = new Date().getMilliseconds();
+    var timeElement;
+    do {
+        timeElement = document.getElementById("org.twitched.buffer_time");
+    }
+    while ((timeElement === null || typeof(timeElement) === "undefined") &&
+        new Date().getMilliseconds() - pollTime <= 2000);
+    // Get the video time
+    var time;
+    if (timeElement !== null && typeof(timeElement) !== "undefined")
+        time = timeElement.getAttribute("data-time");
+    else
+        console.log("Failed to fetch time");
     // Respond
     sendResponse({
         streamer: {
@@ -60,7 +74,22 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             displayName: displayName
         },
         video: {
-            id: videoId
+            id: videoId,
+            time: time
         }
     });
 });
+
+/**
+ * Injects a script directly into the DOM that can access the actual window element
+ */
+function injectScript() {
+    var script = document.createElement("script");
+    script.src = chrome.extension.getURL("src/extract_time.js");
+    script.onload = function() {
+        this.remove()
+    };
+    (document.head || document.documentElement).appendChild(script);
+}
+
+injectScript();
