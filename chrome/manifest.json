@@ -41,5 +41,11 @@
   ],
   "web_accessible_resources": [
     "src/extract_time.js"
-  ]
+  ],
+  "applications": {
+    "gecko": {
+      "id": "firefox@twitched.org",
+      "update_url": "https://raw.githubusercontent.com/TwitchedApp/twitched-extension/master/firefox_updates.json"
+    }
+  }
 }
