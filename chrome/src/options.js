@@ -160,20 +160,9 @@ function onIpSubmit(event) {
 }
 
 /**
- * Search through the document to localize i18n string
- */
-function localizeStrings() {
-    var html = document.getElementsByTagName("html")[0];
-    html.innerHTML = html.innerHTML.replace(/__MSG_([A-Za-z0-9-_]+)__/g, function (match, groupOne) {
-        return chrome.i18n.getMessage(groupOne);
-    });
-}
-
-/**
  * Begin searching for this devices IP(s) and search from 1-255 on the last octet for a Roku.
  */
 window.onload = function() {
-    localizeStrings();
     // Set form action
     document.getElementById("ip-form").onsubmit = onIpSubmit;
     loadSavedIp();
