@@ -53,18 +53,16 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     }
     // Get the display name
     var displayName;
-    // Wait for the video time
-    var pollTime = new Date().getMilliseconds();
-    var timeElement;
-    do {
-        timeElement = document.getElementById("org.twitched.buffer_time");
-    }
-    while ((timeElement === null || typeof(timeElement) === "undefined") &&
-        new Date().getMilliseconds() - pollTime <= 2000);
     // Get the video time
-    var time;
-    if (timeElement !== null && typeof(timeElement) !== "undefined")
-        time = timeElement.getAttribute("data-time");
+    var time = 0;
+    var timeElement = document.getElementsByClassName("player-seek__time");
+    if (timeElement !== null && typeof(timeElement) !== "undefined" && timeElement.length > 0) {
+        var timeRegex = new RegExp("(\\d+):(\\d+):(\\d+)");
+        var groups = timeRegex.exec(timeElement[0].textContent.trim());
+        time += parseInt(groups[1]) * 60 * 60;
+        time += parseInt(groups[2]) * 60;
+        time += parseInt(groups[3]);
+    }
     else
         console.log("Failed to fetch time");
     // Respond
