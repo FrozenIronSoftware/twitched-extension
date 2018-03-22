@@ -145,7 +145,7 @@ chrome.pageAction.onClicked.addListener(function() {
         chrome.i18n.getMessage("message_cast_in_progress"));
     // Inject extractor JavaScript
     chrome.tabs.executeScript(null, {
-        file: "src/extract.js"
+        file: "/src/extract.js"
     }, function () {
         // Send a message to the extractor
         chrome.tabs.query({
