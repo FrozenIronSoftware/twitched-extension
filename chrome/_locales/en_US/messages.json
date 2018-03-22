@@ -50,5 +50,29 @@
   "message_cast_in_progress": {
     "message": "Attempting to cast to the Twitched app.",
     "description": "Notification message shown when a stream is attempting to be cast"
+  },
+  "message_ip_hostname": {
+    "message": "IP or hostname",
+    "description": "IP request field"
+  },
+  "title_roku": {
+    "message": "Roku",
+    "description": "Generic Roku title"
+  },
+  "title_roku_plural": {
+    "message": "Rokus",
+    "description": "Generic Roku title pluralized"
+  },
+  "title_app": {
+    "message": "App",
+    "description": "App title"
+  },
+  "title_twitched": {
+    "message": "Twitched",
+    "description": "Twitched title"
+  },
+  "title_twitched_zero": {
+    "message": "Twitched Zero",
+    "description": "Twitched Zero title"
   }
 }

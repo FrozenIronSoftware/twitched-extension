@@ -4,15 +4,23 @@
 </head>
 <body>
     <form id="ip-form">
-        Roku: <input id="ip-field" placeholder="IP or hostname" />
-        <input type="submit" />
+        __MSG_title_roku__:
+            <input id="ip-field" placeholder="__MSG_message_ip_hostname__" />
+            <br>
+        __MSG_title_app__:
+            <select id="app-field">
+                <option value="0">__MSG_title_twitched__</option>
+                <option value="1">__MSG_title_twitched_zero__</option>
+            </select>
+            <br>
+            <input type="submit" />
     </form>
     <p id="message"></p>
 
     <br />
 
     <div id="search-panel">
-        <h2 class="text-centered">Rokus</h2>
+        <h2 class="text-centered">__MSG_title_roku_plural__</h2>
         <div id="search-spinner"></div>
         <div id="roku-list"></div>
     </div>

@@ -48,10 +48,14 @@ function setMessage(msg) {
  * Load the saved IP (if any) and set the input field value
  */
 function loadSavedIp() {
-    chrome.storage.local.get("rokuIp", function (values) {
+    chrome.storage.local.get(["rokuIp", "rokuAppId"], function (values) {
         if (values.rokuIp !== null && typeof(values.rokuIp) !== "undefined") {
             var ipField = document.getElementById("ip-field");
             ipField.value = values.rokuIp;
+        }
+        if (values.rokuAppId !== null && typeof(values.rokuAppId) !== "undefined") {
+            var appField = document.getElementById("app-field");
+            appField.value = values.rokuAppId;
         }
     });
 }
@@ -67,7 +71,8 @@ function onRokuListItemClicked(event) {
     // Set ip
     setMessage(chrome.i18n.getMessage("message_setting_ip"));
     chrome.storage.local.set({
-        rokuIp: ip
+        rokuIp: ip,
+        rokuAppId: document.getElementById("app-field").value
     }, function () {
         setMessage("message_set_ip");
         loadSavedIp()
@@ -109,8 +114,9 @@ function onIpSubmit(event) {
     event.preventDefault();
     setMessage(chrome.i18n.getMessage("message_setting_ip"));
     var ipField = document.getElementById("ip-field");
+    var appField = document.getElementById("app-field");
     // Check for empty ip
-    if (ipField === null || typeof(ipField) === "undefined") {
+    if (ipField === null || typeof(ipField) === "undefined" || appField === null || typeof(appField) === "undefined") {
         setMessage(chrome.i18n.getMessage("message_failed_set_ip"));
         return;
     }
@@ -126,7 +132,8 @@ function onIpSubmit(event) {
                 var vendor = info.getElementsByTagName("vendor-name")[0].innerText;
                 if (vendor.toUpperCase() === "ROKU") {
                     chrome.storage.local.set({
-                        rokuIp: ipField.value
+                        rokuIp: ipField.value,
+                        rokuAppId: appField.value
                     }, function (){
                         setMessage("message_set_ip");
                     });
@@ -153,9 +160,20 @@ function onIpSubmit(event) {
 }
 
 /**
+ * Search through the document to localize i18n string
+ */
+function localizeStrings() {
+    var html = document.getElementsByTagName("html")[0];
+    html.innerHTML = html.innerHTML.replace(/__MSG_([A-Za-z0-9-_]+)__/g, function (match, groupOne) {
+        return chrome.i18n.getMessage(groupOne);
+    });
+}
+
+/**
  * Begin searching for this devices IP(s) and search from 1-255 on the last octet for a Roku.
  */
 window.onload = function() {
+    localizeStrings();
     // Set form action
     document.getElementById("ip-form").onsubmit = onIpSubmit;
     loadSavedIp();

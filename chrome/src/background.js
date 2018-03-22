@@ -1,4 +1,5 @@
-var appId = "206723";
+const APP_ID_TWITCHED = "206723";
+const APP_ID_TWITCHED_ZERO = "223126";
 
 /**
  * Page action show listener
@@ -43,8 +44,9 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
  * @param callback param - error associative array containing title and message if there is an error or null on success
  */
 function sendDeepLink(login, videoId, time, callback) {
-    chrome.storage.local.get("rokuIp", function (values) {
-        if (values.rokuIp === null || typeof(values.rokuIp) === "undefined") {
+    chrome.storage.local.get(["rokuIp", "rokuAppId"], function (values) {
+        if (values.rokuIp === null || typeof(values.rokuIp) === "undefined" ||
+            values.rokuAppId === null || typeof(values.rokuAppId) === "undefined") {
             chrome.runtime.openOptionsPage();
             return callback({
                 title: chrome.i18n.getMessage("title_cast_fail"),
@@ -84,7 +86,7 @@ function sendDeepLink(login, videoId, time, callback) {
                     "POST",
                     url
                         .replace("{0}", values.rokuIp)
-                        .replace("{1}", appId)
+                        .replace("{1}", values.rokuAppId === "0" ? APP_ID_TWITCHED : APP_ID_TWITCHED_ZERO)
                         .replace("{2}", contentId)
                         .replace("{3}", mediaType)
                         .replace("{4}", (time !== null && typeof(time) !== "undefined") ? String(time) : "0"),
