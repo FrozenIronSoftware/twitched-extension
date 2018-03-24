@@ -58,10 +58,15 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     var timeElement = document.getElementsByClassName("player-seek__time");
     if (timeElement !== null && typeof(timeElement) !== "undefined" && timeElement.length > 0) {
         var timeRegex = new RegExp("(\\d+):(\\d+):(\\d+)");
-        var groups = timeRegex.exec(timeElement[0].textContent.trim());
-        time += parseInt(groups[1]) * 60 * 60;
-        time += parseInt(groups[2]) * 60;
-        time += parseInt(groups[3]);
+        var timeString = timeElement[0].textContent.trim();
+        if (timeRegex.test(timeString)) {
+            var groups = timeRegex.exec(timeString);
+            time += parseInt(groups[1]) * 60 * 60;
+            time += parseInt(groups[2]) * 60;
+            time += parseInt(groups[3]);
+        }
+        else
+            console.log("Failed to parse seek time: " + timeString);
     }
     else
         console.log("Failed to fetch time");
@@ -77,17 +82,3 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         }
     });
 });
-
-/**
- * Injects a script directly into the DOM that can access the actual window element
- */
-function injectScript() {
-    var script = document.createElement("script");
-    script.src = chrome.extension.getURL("src/extract_time.js");
-    script.onload = function() {
-        this.remove()
-    };
-    (document.head || document.documentElement).appendChild(script);
-}
-
-injectScript();
