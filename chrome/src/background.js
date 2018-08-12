@@ -36,6 +36,53 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 });
 
 /**
+ * Check if the Roku has an app with the passed id installed
+ * @param rokuIp ip address of the roku
+ * @param rokuAppId app id to check for
+ * @param callback async callback. this function should expect a error (invalid is success) and boolean parameters
+ *        indicating the installed status
+ */
+function isAppInstalled(rokuIp, rokuAppId, callback) {
+    let request = new XMLHttpRequest();
+    request.timeout = 30000;
+    request.onloadend = function(event) {
+        if (event.target.status === 200) {
+            try {
+                let parser = new DOMParser();
+                let xml = parser.parseFromString(event.target.responseText, "text/html");
+                let apps = xml.getElementsByTagName("apps")[0].getElementsByTagName("app");
+                let isInstalled = false;
+                for (let appIndex = 0; appIndex < apps.length; appIndex++) {
+                    let app = apps[appIndex];
+                    if (app.attributes["id"].value === rokuAppId)
+                        isInstalled = true;
+                }
+                callback(null, isInstalled);
+            }
+            catch (e) {
+                console.log(e);
+                callback(e, false);
+            }
+        }
+        else
+            callback(Error("App query returned a non-200 status"), false)
+    };
+    let url = "http://{0}:8060/query/apps";
+    try {
+        request.open(
+            "GET",
+            url.replace("{0}", rokuIp),
+            true
+        );
+        request.send();
+    }
+    catch (e) {
+        console.log(e);
+        callback(e, false);
+    }
+}
+
+/**
  * Send a stream deep link to the Roku
  * Provide only one of login or videoId
  * @param login streamer login to use for deep link
@@ -54,53 +101,70 @@ function sendDeepLink(login, videoId, time, callback) {
             });
         }
         else {
-            var request = new XMLHttpRequest();
-            request.timeout = 30000;
-            request.onloadend = function(event) {
-                if (event.target.status !== 200) {
+            isAppInstalled(values.rokuIp,
+                values.rokuAppId === "0" ? APP_ID_TWITCHED : APP_ID_TWITCHED_ZERO, function (error, isInstalled) {
+                if (error) {
+                    callback({
+                        title: chrome.i18n.getMessage("title_cast_fail"),
+                        message: chrome.i18n.getMessage("message_roku_conntect_fail")
+                    });
+                    return
+                }
+                var request = new XMLHttpRequest();
+                request.timeout = 30000;
+                request.onloadend = function(event) {
+                    if (event.target.status !== 200) {
+                        callback({
+                            title: chrome.i18n.getMessage("title_cast_fail"),
+                            message: chrome.i18n.getMessage("message_roku_conntect_fail")
+                        });
+                    }
+                    else if (!isInstalled) {
+                        callback({
+                            title: chrome.i18n.getMessage("title_cast_fail"),
+                            message: chrome.i18n.getMessage("message_app_not_installed")
+                        });
+                    }
+                    else
+                        callback()
+                };
+                try {
+                    var url = "http://{0}:8060/{5}/{1}?contentId={2}&mediaType={3}&time={4}";
+                    var contentId;
+                    var mediaType;
+                    if (login !== null && typeof(login) !== "undefined") {
+                        contentId = "twitch_stream_{0}".replace("{0}", login);
+                        mediaType = "live";
+                    }
+                    else if (videoId !== null && typeof(videoId) !== "undefined") {
+                        contentId = "twitch_video_{0}".replace("{0}", videoId);
+                        mediaType = "special";
+                    }
+                    else {
+                        // noinspection ExceptionCaughtLocallyJS
+                        throw "Missing login/videoId";
+                    }
+                    request.open(
+                        "POST",
+                        url
+                            .replace("{0}", values.rokuIp)
+                            .replace("{1}", values.rokuAppId === "0" ? APP_ID_TWITCHED : APP_ID_TWITCHED_ZERO)
+                            .replace("{2}", contentId)
+                            .replace("{3}", mediaType)
+                            .replace("{4}", (time !== null && typeof(time) !== "undefined") ? String(time) : "0")
+                            .replace("{5}", isInstalled ? "launch" : "install"),
+                        true
+                    );
+                    request.send("");
+                }
+                catch (e) {
+                    console.log(e);
                     callback({
                         title: chrome.i18n.getMessage("title_cast_fail"),
                         message: chrome.i18n.getMessage("message_roku_conntect_fail")
                     });
                 }
-                else
-                    callback()
-            };
-            try {
-                var url = "http://{0}:8060/launch/{1}?contentId={2}&mediaType={3}&time={4}";
-                var contentId;
-                var mediaType;
-                if (login !== null && typeof(login) !== "undefined") {
-                    contentId = "twitch_stream_{0}".replace("{0}", login);
-                    mediaType = "live";
-                }
-                else if (videoId !== null && typeof(videoId) !== "undefined") {
-                    contentId = "twitch_video_{0}".replace("{0}", videoId);
-                    mediaType = "special";
-                }
-                else {
-                    // noinspection ExceptionCaughtLocallyJS
-                    throw "Missing login/videoId";
-                }
-                request.open(
-                    "POST",
-                    url
-                        .replace("{0}", values.rokuIp)
-                        .replace("{1}", values.rokuAppId === "0" ? APP_ID_TWITCHED : APP_ID_TWITCHED_ZERO)
-                        .replace("{2}", contentId)
-                        .replace("{3}", mediaType)
-                        .replace("{4}", (time !== null && typeof(time) !== "undefined") ? String(time) : "0"),
-                    true
-                );
-                request.send("");
-            }
-            catch (e) {
-                console.log(e);
-                callback({
-                    title: chrome.i18n.getMessage("title_cast_fail"),
-                    message: chrome.i18n.getMessage("message_roku_conntect_fail")
-                });
-            }
+            });
         }
     });
 }

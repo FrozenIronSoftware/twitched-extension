@@ -74,5 +74,9 @@
   "title_twitched_zero": {
     "message": "Twitched Zero",
     "description": "Twitched Zero title"
+  },
+  "message_app_not_installed": {
+    "message": "Twitched is not installed on the selected device.",
+    "description": "Error message when the app is not found on the device that was selected for casting"
   }
 }
