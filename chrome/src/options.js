@@ -125,26 +125,14 @@ function onIpSubmit(event) {
     request.timeout = 2000;
     request.onloadend = function(event) {
         if (event.target.status === 200) {
-            try {
-                var parser = new DOMParser();
-                var xml = parser.parseFromString(event.target.responseText, "text/html");
-                var info = xml.getElementsByTagName("device-info")[0];
-                var vendor = info.getElementsByTagName("vendor-name")[0].innerText;
-                if (vendor.toUpperCase() === "ROKU") {
-                    chrome.storage.local.set({
-                        rokuIp: ipField.value,
-                        rokuAppId: appField.value
-                    }, function (){
-                        setMessage("message_set_ip");
-                    });
-                }
-                else 
-                    setMessage("message_failed_set_ip")
-            }
-            catch (e) {
-                console.log(e);
-                setMessage("message_failed_set_ip");
-            }
+            // Manufacture varies from Roku devices to TVs. Do not check the XML for Roku as the manufacture.
+            // Model numbers for TVs also do not align with Roku models
+            chrome.storage.local.set({
+                rokuIp: ipField.value,
+                rokuAppId: appField.value
+            }, function () {
+                setMessage("message_set_ip");
+            });
         }
         else
             setMessage("message_failed_set_ip");
